@@ -6,7 +6,6 @@ This tutorial aims to teach you how to interface with and collect data from a ra
 
 <div style="text-align:center"><img src ="https://github.com/Bucknalla/Arduino-Tutorials/blob/master/img/accelerometer.png" /></div>
 
-![](https://github.com/Bucknalla/Arduino-Tutorials/blob/master/img/accelerometer.png)
 ###Aims###
 
 By completing this tutorial, you should be able to confidently -
