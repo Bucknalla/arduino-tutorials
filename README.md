@@ -16,7 +16,7 @@ By completing this tutorial, you should be able to confidently -
 
 ## Getting Started ##
 
-The following drivers are based on the Adafruit Unified Sensor Driver:
+If you haven't had a look at tutorial 1, it might be worth starting there before having a go at this one!
 
 **Tutorials**
   - [Arduino Tutorial 1 - Introduction to Arduino](https://github.com/adafruit/Adafruit_ADXL345)
