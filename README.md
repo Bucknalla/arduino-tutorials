@@ -4,7 +4,7 @@ The ability to collect data is an incredibly valuable tool to an Engineer, wheth
 
 This tutorial aims to teach you how to interface with and collect data from a range of devices using a protocol known as SPI (Serial Peripheral Interface). This is an interface that will allow you to talk to sensors, storage and other devices. It is a general purpose protocol and can be used for a whole range of devices, beyond the Accelerometer and SD card examples used in this tutorial.
 
-<div style="text-align:center"><img src ="https://github.com/Bucknalla/Arduino-Tutorials/blob/master/img/accelerometer.png" /></div>
+<div style="text-align:center"><img src ="https://github.com/Bucknalla/Arduino-Tutorials/blob/master/img/accelerometer-arduino.png" /></div>
 
 ###Aims###
 
@@ -19,9 +19,8 @@ By completing this tutorial, you should be able to confidently -
 If you haven't had a look at tutorial 1, it might be worth starting there before having a go at this one!
 
 **Tutorials**
-  - [Arduino Tutorial 1 - Introduction to Arduino](https://github.com/adafruit/Adafruit_ADXL345)
-  - [Adafruit\_LSM303DLHC](https://github.com/adafruit/Adafruit_LSM303DLHC)
-  - [Adafruit\_MMA8451\_Library](https://github.com/adafruit/Adafruit_MMA8451_Library)
+  - [Arduino Tutorial 1 - Introduction to Arduino](BROKEN)
+
 
 
 ## Background ##
