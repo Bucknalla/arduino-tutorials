@@ -1,10 +1,16 @@
-# School of Engineering - Arduino Tutorial 2 #
+# Arduino Tutorial 2 - Using Accelerometers and Logging Data #
 
-Many small embedded systems exist to collect data from sensors, analyse the data, and either take an appropriate action or send that sensor data to another system for processing.
+The ability to collect data is an incredibly valuable tool to an Engineer, whether it's the vibrations of traffic across a bridge or the stress in a mechanism, it's essential to be able to effectively test a design.
 
-One of the many challenges of embedded systems design is the fact that parts you used today may be out of production tomorrow, or system requirements may change and you may need to choose a different sensor down the road.
+This tutorial aims to teach you how to interface with and collect data from a range of devices using a protocol known as SPI (Serial Peripheral Interface). This is an interface that will allow you to talk to sensors, storage and other devices. It is a general purpose protocol and can be used for a whole range of devices, beyond the Accelerometer and SD card examples used in this tutorial.
 
-Creating new drivers is a relatively easy task, but integrating them into existing systems is both error prone and time consuming since sensors rarely use the exact same units of measurement.
+**Aims**
+
+By completing this tutorial, you should be able to confidently -
+
+- Connect a sensor to an Arduino over the SPI bus
+- View the data being collected by the Arduino on a Computer using the Serial Monitor
+- Store the collected data with an SD card, allowing you to collect data without needing a Computer
 
 By reducing all data to a single **sensors\_event\_t** 'type' and settling on specific, **standardised SI units** for each sensor family the same sensor types return values that are comparable with any other similar sensor.  This enables you to switch sensor models with very little impact on the rest of the system, which can help mitigate some of the risks and problems of sensor availability and code reuse.
 
