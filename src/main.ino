@@ -11,7 +11,7 @@ Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified(12345);
 void setup(void)
 {
   Serial.begin(9600);
-  Serial.println("Accelerometer Test"); Serial.println("");
+  // Serial.println("Accelerometer Test"); Serial.println("");
   pinMode(10, OUTPUT);
 
   /* Initialise the sensor */
@@ -25,7 +25,7 @@ void setup(void)
     Serial.println("SD - initialization failed!");
     return;
   }
-  Serial.println("SD - initialization done.");
+  // Serial.println("SD - initialization done.");
 
   SD.remove("test.csv");
   File myFile = SD.open("test.csv", FILE_WRITE);
@@ -34,7 +34,6 @@ void setup(void)
 
   // close the file:
     myFile.close();
-    Serial.println("...");
   } else {
     // if the file didn't open, print an error:
     Serial.println("error opening test.txt");
@@ -56,24 +55,20 @@ void loop(void)
   float y = event.acceleration.y;
   float z = event.acceleration.z;
 
-Serial.print(event.acceleration.x); Serial.print("  ");
-Serial.print(event.acceleration.y); Serial.print("  ");
-Serial.print(event.acceleration.z); Serial.print("  ");
-
-
   String temx = dtostrf(x,3,2,accx);
   String temy = dtostrf(y,3,2,accy);
   String temz = dtostrf(z,3,2,accz);
   File myFile = SD.open("test.csv", FILE_WRITE);
 
-  delay(500);
+  Serial.println(temx + "," + temy + "," + temz);
+
+  delay(50);
 
   if (myFile) {
     myFile.println(temx + "," + temy + "," + temz);
 
   // close the file:
     myFile.close();
-    Serial.println("...");
   } else {
     // if the file didn't open, print an error:
     Serial.println("error opening test.txt");
