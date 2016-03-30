@@ -12,13 +12,13 @@ This tutorial will teach you how to interface with and collect data from a range
 
 By completing this tutorial, you should be able to confidently -
 
-- Connect multiple sensors to an Arduino using the SPI bus
+- Connect a sensor to an Arduino using the SPI bus
 - View the live data being collected by the Arduino, on a Computer, using the built-in Serial Monitor
 - Store this data using an SD card, allowing you to view the data at a later date
 
 <div style="text-align:center"><img src ="https://github.com/Bucknalla/Arduino-Tutorials/blob/master/img/accelerometer-arduino.png" /></div>
 
-                Example of the data recorded by the Arduino, using an Accelerometer and plotted using Excel
+        Example of the data recorded by the Arduino, using an Accelerometer and plotted using Excel
 
 
 ## Getting Started ##
