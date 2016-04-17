@@ -57,7 +57,7 @@ CD:	Card Detect
 DO:	Data Out
 DI:	Data In
 GND:	Common Ground
-5V:	5V form the Arduino to the module to provide power
+5V:	5V from the Arduino to the module to provide power
 
 We define the pin values of the CS and CD pin below the #inclue statement:
 
@@ -75,4 +75,73 @@ The Datasheet shows that the communication protocol is MODE3, hence we start wit
 SPI.setDataMode(SPI_MODE3);
 This ensures that the Arduino communicates in a way that the Accelerometer understands.
 
+The initalisation is complete, however we must write functions to read from and write to the Accelerometer.
+
+Writing to the Accelerometer:
+
+There will be many times throughout the program that data needs to be written to the Accelerometer, therefore the code is written as a function.
+
+To write the function we first declare the name and inputs:
+
+void writeAccel(char registerAddress, char value) {
+  //Set Chip Select pin low to signal the beginning of an SPI packet.
+  digitalWrite(AccelCS, LOW);
+  //Transfer the register address over SPI.
+  SPI.transfer(registerAddress);
+  //Transfer the desired register value over SPI.
+  SPI.transfer(value);
+  //Set the Chip Select pin high to signal the end of an SPI packet.
+  digitalWrite(AccelCS, HIGH);
+}
+
+The code is farily self-explanatory, the chip select pin is pulled low to start communication with the device.
+
+Two useful parts of information are sent, the first one being the address of where we want to send the value (inside the Accelerometer),
+and the second being the actual value that we want to save. (RegisterAddress and value respectively).
+
+Reading from the Accelerometer
+
+void readRegister(char registerAddress, int numBytes, char * values) {
+  //Since we're performing a read operation, the most significant bit of the register address should be set.
+  char address = 0x80 | registerAddress;
+  //If we're doing a multi-byte read, bit 6 needs to be set as well.
+  if (numBytes > 1)address = address | 0x40;
+  //Set the Chip select pin low to start an SPI packet.
+  digitalWrite(AccelCS, LOW);
+  //Transfer the starting register address that needs to be read.
+  SPI.transfer(address);
+  //Continue to read registers until we've read the number specified, storing the results to the input buffer.
+  for (int i = 0; i < numBytes; i++) {
+    values[i] = SPI.transfer(0x00);
+  }
+  //Set the Chips Select pin high to end the SPI packet.
+  digitalWrite(AccelCS, HIGH);
+}
+
+Reading from the accelerometer is slightly more complex due to the fact that the incoming data length may vary.
+
+Firstly we prepare the register address by setting the most significant bit to a 1 (for those interested search for bitwise logic).
+
+Also, furthermore, if we need to read more than 1 byte, then bit6 is required to be set also.
+
+As with  the write function, the Accel CS pin is pulled low to initialise communication, and the address is transferred.
+Then a 0 is transferred as many times as there are number of bytes that we want to read. Each time the result is saved into 'values array'
+
+Finally, the CS pin is pulled high and the read process finished.
+
+
+SPI SETUP
+The accelerometer datasheet indicates that the following can be set:
+
+char POWER_CTL = 0x2D;  //Power Control Register
+char DATA_FORMAT = 0x31;
+
+Furthermore, the axis data is stored in addresses as follows (note that each axis value is split into :
+
+char DATAX0 = 0x32; //X-Axis Data 0
+char DATAX1 = 0x33; //X-Axis Data 1
+char DATAY0 = 0x34; //Y-Axis Data 0
+char DATAY1 = 0x35; //Y-Axis Data 1
+char DATAZ0 = 0x36; //Z-Axis Data 0
+char DATAZ1 = 0x37; //Z-Axis Data 1
 
