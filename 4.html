@@ -18,11 +18,11 @@
     <section class="page-header">
       <h1 class="project-name">Digital Accelerometer &amp; SD Card Reader</h1>
       <h2 class="project-tagline">Warwick University - School of Engineering - Arduino Tutorials</h2>
-      <a href="http://bucknalla.github.io/Arduino-Tutorials/3" class="btn"><</a>
+      <a href="../3.html" class="btn"><</a>
       <a href="https://github.com/Bucknalla/Arduino-Tutorials" class="btn">View on GitHub</a>
       <a href="https://github.com/Bucknalla/Arduino-Tutorials/zipball/master" class="btn">Download .zip</a>
       <a href="http://pdfcrowd.com/?http://bucknalla.github.io/Arduino-Tutorials/3" class="btn">Save .pdf</a>
-      <a href="http://bucknalla.github.io/Arduino-Tutorials/3" class="btn" style="visibility:hidden;">></a>
+      <a href="../4.html" class="btn" style="visibility:hidden;">></a>
     </section>
 
     <section class="main-content">
@@ -95,7 +95,7 @@ for this reason, it is <strong>important not to connect any wires to these 2 pin
 
 <p>Add the following line above the code you previously have written.</p>
 
-<pre class="prettyprint linenums">#include &lt;SPI.h&gt; //SPI library file</pre>
+<pre class="prettyprint linenums">#include &lt;SPI.h&gt;</pre>
 
 <p>This line of code tells the compiler which libraries to include when compiling the code for the Arduino.</p>
 
@@ -202,8 +202,13 @@ void readRegister(char registerAddress, int numBytes, char * values) {
 }
 </pre>
 
-<p>As with the write function, the AccelCS pin is pulled low to initialise communication, and the address is transferred.
-Then a 0 is transferred as many times as there are number of bytes that we want to read. Each time the result is saved into 'values array'. Finally, the CS pin is pulled high and the read process finished.</p>
+<p>As with the write function, the AccelCS pin is pulled low to initialise communication and the address is transferred.
+Then a zero is transferred as many times as there are number of bytes that we want to read. Each time the result is saved into 'values array'. Finally, the CS pin is pulled high and the read process finished.</p>
+
+<h4>Looping the Code</h4>
+
+<p>Finally we will write code to get the data and display it over the serial port. This will be performed by the loop function so we can .</p>
+
 
 <h3><a id="sdcard" class="anchor" href="#sdcard" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Connecting the SD Card Reader to log Data</h3>
 
