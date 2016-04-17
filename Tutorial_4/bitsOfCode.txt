@@ -25,6 +25,54 @@ There is a set of standard values, with 9600 often being used as default on many
 The value does not really matter, and you may use a different one, as long as you select 
 the corresponding value in the Serial Monitor.
 The Serial communication involves a Tx and Rx line which is connected internally to pins D0 and D1,
-for this reason, it is important NOT to connect any wires to these 2 pins as it can interfere with the communications.
+for this reason, it is important NOT to connect any wires to these 2 pins as they can interfere with the communications.
 Arduino Serial Link: https://www.arduino.cc/en/Reference/Serial
+
+
+
+ADXL345 Accelerometer
+You are using the ADXL345 Accelerometer, see the datasheet here.
+
+You will notice that it can communicate over SPI interface or I2C, for this tutorial we focus on using the SPI interface as the SD card only supports this.
+However, I2C uses less wires and is important to know about, see for more information:
+
+
+[I2C description here]
+
+Arduino has an SPI library which handles lots of the low-level communications, making it easier for us to send data.
+
+Firstly we import the SPI library by placing the following line at the start of the code:
+#include <SPI.h>	//SPI library file
+
+This tells the compiler that it should look in the defined directory to locate functions used in the main code.
+
+Next, the 
+
+Before changing the code, connect the Accelerometer to the Arduino as shown:
+
+Note that the wire from CS on the Accelerometer attaches to pin 10 on the Arduino.
+
+CS:	Chip Select
+CD:	Card Detect
+DO:	Data Out
+DI:	Data In
+GND:	Common Ground
+5V:	5V form the Arduino to the module to provide power
+
+We define the pin values of the CS and CD pin below the #inclue statement:
+
+uint8_t AccelCS = 10;
+uint8_t AccelCD = 8;
+
+These are then defined as output and input respectively in the setup function:
+
+pinMode(AccelCS, OUTPUT);	//Accel. Chip Select pin is an output form the Arduino
+pinMode(AccelCD, INPUT);	//Accel. Chip Detect pin is an input to the Arduino
+
+Once these have been defined, the SPI can be initialised in much the same way as Serial was:
+SPI.begin();
+The Datasheet shows that the communication protocol is MODE3, hence we start with that:
+SPI.setDataMode(SPI_MODE3);
+This ensures that the Arduino communicates in a way that the Accelerometer understands.
+
 
