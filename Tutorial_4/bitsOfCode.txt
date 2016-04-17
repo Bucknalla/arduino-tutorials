@@ -24,6 +24,7 @@ This is not arbitrary and is known as the Serial Baud Rate.
 There is a set of standard values, with 9600 often being used as default on many devices.
 The value does not really matter, and you may use a different one, as long as you select 
 the corresponding value in the Serial Monitor.
-The Serial communication involves a Tx and Rx 
+The Serial communication involves a Tx and Rx line which is connected internally to pins D0 and D1,
+for this reason, it is important NOT to connect any wires to these 2 pins as it can interfere with the communications.
 Arduino Serial Link: https://www.arduino.cc/en/Reference/Serial
 
