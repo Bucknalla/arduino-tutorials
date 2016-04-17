@@ -62,12 +62,10 @@ GND:	Common Ground
 We define the pin values of the CS and CD pin below the #inclue statement:
 
 uint8_t AccelCS = 10;
-uint8_t AccelCD = 8;
 
 These are then defined as output and input respectively in the setup function:
 
 pinMode(AccelCS, OUTPUT);	//Accel. Chip Select pin is an output form the Arduino
-pinMode(AccelCD, INPUT);	//Accel. Chip Detect pin is an input to the Arduino
 
 Once these have been defined, the SPI can be initialised in much the same way as Serial was:
 SPI.begin();
@@ -182,3 +180,58 @@ For those interested, look up bitshifting (<<8) to see what this does...
 The data is printed to the screen using the code shown above.
 
 Upload your program and you should see the values shown on the Serial Monitor.
+
+
+SD Card
+
+As with the SPI library, we must import the SD card library at the top of the code:
+
+#include <SD.h>
+
+The SD card also has a Chip-Select pin, and must be connected to a separate pin on the Arduino, see the wiring diagram for more information
+
+uint8_t CD = 8;  	 //Card detect pin for SD Card
+uint8_t SDCS = 10;	 // SD card Chip Select
+
+In setup, include the following line
+pinMode(AccelCD, INPUT);	//Accel. Chip Detect pin is an input to the Arduinouint8_t CS = 10;  //Chip Select pin for SD Card
+
+To save data to the SD card, the following must be declared:
+
+String dataString = "";		//string to hold text data to be written to SD card
+File dataFile;			//File on the SD card which will hold the data
+
+At the end of the SETUP function, add the following code. The SD card communicates using MODE0 protocol (different to that of the Accelerometer,
+and must therefore be set accordingly before the communication with the SD card is started: 
+
+ SPI.setDataMode(SPI_MODE0); //Configure the SPI connection for the SD card
+  if(digitalRead(SDCD)) Serial.println("Card Inserted, Initializing SD card...");  //inform user of status
+
+The SD card is initialised in exactly the same way as both Serial and SPI:
+  SD.begin(CS);   //Start SD communication using CS pin
+  Serial.println("Card initialized.");
+
+After the code for printing the values to the serial monitor, add the following to save the values into a string capable of being saved to the SD card.
+
+dataString = "";
+  dataString += String(x);  //convert int to string and append to existing string
+  dataString += ", ";
+  dataString += String(y);  //convert int to string and append to existing string
+  dataString += ", ";
+  dataString += String(z);  //convert int to string and append to existing string
+
+Now that the string is prepared, we save it on the card:
+
+dataFile = SD.open("datalog.csv", FILE_WRITE);  //open file to write data to
+
+We then check if the file is actually open, and if it is we write the string to it and close the file.
+  if (dataFile) {                 //If data file is actually open...
+    dataFile.println(dataString); //save data
+    dataFile.close();             //close file
+  }
+
+We then add an else to the if to indicate to the user if the the file was not opened, again this is throught the Serial monitor.
+  else {
+    Serial.println("error opening datalog.csv");    // if the file isn't open, pop up an error
+  }
+
