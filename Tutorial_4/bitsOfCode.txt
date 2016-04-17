@@ -20,5 +20,10 @@ Note that this function includes a linefeed after the information is printed.
 
 Serial Communication Popout box:
 You will notice that a value of 9600 has been chosen for the Serial.begin() instruction.
-This is not arbitrary and is known as the Serial Baud Rate. There is a set of standard values, with 9600 often being used as default on many devices.
- 
+This is not arbitrary and is known as the Serial Baud Rate.
+There is a set of standard values, with 9600 often being used as default on many devices.
+The value does not really matter, and you may use a different one, as long as you select 
+the corresponding value in the Serial Monitor.
+The Serial communication involves a Tx and Rx 
+Arduino Serial Link: https://www.arduino.cc/en/Reference/Serial
+
