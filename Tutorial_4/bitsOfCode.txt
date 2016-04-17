@@ -1,0 +1,18 @@
+void setup(){
+	Serial.begin(9600);	//initialise Communication with PC
+}
+
+void loop(){
+	Serial.print("Hello World!");	//Send characters to PC
+	delay(1000);			//Delay for 1 second
+}
+
+Note the delay, this is important as the communication happens quickly and without a pause,
+the data fills the screen very quickly and the communications can stop working.
+
+Now try...
+Replace the line that prints characters with...
+
+Serial.println("Hello World!");
+
+Note that this function includes a linefeed after the information is printed.
