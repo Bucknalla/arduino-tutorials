@@ -1,0 +1,7 @@
+{ "signal" : [
+  { "name": "CLK",         "wave": "p..................." },
+  { "name": "CS",         "wave": "10.................1" },
+  { "name": "DO",        "wave": "0.3.......4.......0.", "data": ["RegisterAddress", "Value"] },
+],
+  "config" : { "hscale" : 1 }
+}
