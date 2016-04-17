@@ -136,7 +136,7 @@ The accelerometer datasheet indicates that the following can be set:
 char POWER_CTL = 0x2D;  //Power Control Register
 char DATA_FORMAT = 0x31;
 
-Furthermore, the axis data is stored in addresses as follows (note that each axis value is split into :
+Furthermore, the axis data is stored in addresses as follows (note that each axis value is split over 2 bytes (addresses)):
 
 char DATAX0 = 0x32; //X-Axis Data 0
 char DATAX1 = 0x33; //X-Axis Data 1
@@ -145,3 +145,40 @@ char DATAY1 = 0x35; //Y-Axis Data 1
 char DATAZ0 = 0x36; //Z-Axis Data 0
 char DATAZ1 = 0x37; //Z-Axis Data 1
 
+These are all assigned as variables at the beginning of the code to aid readability and ease modification in the future.
+
+We also initialise variables for each of the axis and a buffer to store incoming data:
+
+char values[10]; //This buffer will hold values read from the ADXL345 registers.
+int x, y, z; //These variables will be used to hold the x,y and z axis accelerometer values.
+
+
+Finally we write code to get the data and display it over the serial port, this is all added in the loop function.
+
+readRegister(DATAX0, 6, values);
+
+This line asks the read function to read 6 bytes (2 for each axis - starting at DATAX0 - the first address) and the results are saved in the buffer 'values'
+
+Then the information from the buffer is transferred to a single variable for each axis.
+
+  //The ADXL345 gives 10-bit acceleration values, but they are stored as bytes (8-bits). To get the full value, two bytes must be combined for each axis.
+  //The X value is stored in values[0] and values[1].
+  x = ((int)values[1] << 8) | (int)values[0];
+  //The Y value is stored in values[2] and values[3].
+  y = ((int)values[3] << 8) | (int)values[2];
+  //The Z value is stored in values[4] and values[5].
+  z = ((int)values[5] << 8) | (int)values[4];
+
+For those interested, look up bitshifting (<<8) to see what this does...
+
+  //Print the results to the terminal.
+  Serial.print(x, DEC);
+  Serial.print(',');
+  Serial.print(y, DEC);
+  Serial.print(',');
+  Serial.println(z, DEC);
+  delay(500);		//delay for half a second between readings
+
+The data is printed to the screen using the code shown above.
+
+Upload your program and you should see the values shown on the Serial Monitor.
