@@ -12,8 +12,19 @@ body {
 a {
   color: #1e6bb8;
   text-decoration: none; }
-  a:hover {
+  
+a:hover {
     text-decoration: underline; }
+
+.infobox {
+    color:purple;
+    font-size: 80%;
+    border-style:solid;
+    border-color:purple;
+    border-width:1px;
+    border-radius: 5px;
+    text-align: center;
+}
 
 .btn {
   display: inline-block;
