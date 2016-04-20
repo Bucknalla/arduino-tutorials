@@ -235,3 +235,23 @@ We then add an else to the if to indicate to the user if the the file was not op
     Serial.println("error opening datalog.csv");    // if the file isn't open, pop up an error
   }
 
+
+
+SPI Advantages and disadvantages (from: https://learn.sparkfun.com/tutorials/serial-peripheral-interface-spi):
+Advantages of SPI:
+
+It’s faster than asynchronous serial
+
+The receive hardware can be a simple shift register
+
+It supports multiple slaves
+
+Disadvantages of SPI:
+
+It requires more signal lines (wires) than other communications methods
+
+The communications must be well-defined in advance (you can’t send random amounts of data whenever you want)
+
+The master must control all communications (slaves can’t talk directly to each other)
+
+It usually requires separate SS lines to each slave, which can be problematic if numerous slaves are needed.
