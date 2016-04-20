@@ -5,3 +5,14 @@
 ],
   "config" : { "hscale" : 1 }
 }
+
+
+  
+  { "signal" : [
+  { "name": "CLK",         "wave": "p..................." },
+  { "name": "CS",         "wave": "10.................1" },
+    { "name": "DO",        "wave": "0.3.......0.........", "data": ["registerAddress"] },
+    { "name": "DA",        "wave": "0.........4.......0.", "data": ["Values"] }
+],
+  "config" : { "hscale" : 1 }
+}
