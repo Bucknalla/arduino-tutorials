@@ -1,6 +1,6 @@
 
 
-[I2C description here]
+[I2C description can be found at below link]
 
 https://learn.sparkfun.com/tutorials/i2c
 
