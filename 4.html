@@ -61,7 +61,7 @@
 
 <p>Start by creating the setup and loop functions to create the Serial Interface. </p>
 
-<pre class="prettyprint linenums">void setup(){
+<pre class="prettyprint">void setup(){
 	Serial.begin(9600);	//Initialise Communication with PC
 }
 
@@ -95,21 +95,29 @@ for this reason, it is <strong>important not to connect any wires to these 2 pin
 
 <p>Add the following line above the code you previously have written.</p>
 
-<pre class="prettyprint linenums">#include &lt;SPI.h&gt;</pre>
+<pre class="prettyprint">#include &lt;SPI.h&gt;</pre>
 
 <p>This line of code tells the compiler which libraries to include when compiling the code for the Arduino.</p>
 
-<p>Next you will want to define the pin values, which tells the Arduino which pins you have used to connect the accelerometer to. Append the following code to the setup function so that it looks the same as below.</p>
+<p>Next you will want to define the pin which selects the accelerometer. This allows you to tell the Arduino when you want to connect to the accelerometer. Here we have connected the accelerometer to pin 8. Append the following code just below where you included the SPI library so that it looks the same as below.</p>
 
-<pre class="prettyprint linenums">
-void setup(){
-    Serial.begin(9600);     //Include the Serial initialisation from earlier
-    uint8_t AccelCS = 10;
-    pinMode(AccelCS, OUTPUT);   //Accel. Chip Select pin is an output form the Arduino
-}
+<pre class="prettyprint">
+const uint8_t p_ACC_CS  = 8;  // accelerometer chip select
 </pre>
 
-<p>You do not need to define the additional pins as they are already defined in the SPI library. Check the wiring diagram to familiarise yourself with which pins the library uses.</p>
+<p>Later, when we decide to connect the SD card reader we will also use create a constant that performs the same function</p>
+
+<p>Now we need to tell the Arduino how we wish to use this pin (e.g. either as an input or an output). Add this code within the setup() function.
+
+<pre class="prettyprint">
+pinMode(p_ACC_CS, OUTPUT);
+</pre>
+
+<p>We then want to initialise these pins using the digitalWrite() function. This tells the Arduino that we want to set a specific pin high or low.</p>
+
+<pre class="prettyprint">
+digitalWrite(p_ACC_CS, HIGH);
+</pre>
 
 <p>Once these pins have been defined, the SPI can be initialised in much the same way as Serial was. Add the following line to the setup function.</p>
 
@@ -117,12 +125,15 @@ void setup(){
 SPI.begin();
 </pre>
 
-<p>The <a href="https://github.com/Bucknalla/Arduino-Tutorials/raw/master/Tutorial_4/ADXL345.pdf">datasheet</a> shows that the communication protocol is MODE3, hence we start with that:</p>
+
+
+<p>The <a href="https://github.com/Bucknalla/Arduino-Tutorials/raw/master/Tutorial_4/ADXL345.pdf">datasheet</a> shows that the communication protocol is MODE3, hence we should start with that. As well as this we need to configure the accelerometer for operation; so add the code below to your setup() function.</p>
 <pre class="prettyprint">
-SPI.setDataMode(SPI_MODE3);
+SPI.setDataMode(SPI_MODE3);       // Configure the SPI connection for the ADXL345.
+writeRegister(DATA_FORMAT, 0x01); // Put the ADXL345 into +/- 4G range by writing the value 0x01 to the DATA_FORMAT register.
+writeRegister(POWER_CTL, 0x08);   // Put the ADXL345 into Measurement Mode by writing 0x08 to the POWER_CTL register.
 </pre>
 
-<p>This ensures that the Arduino communicates in a way that the Accelerometer understands.</p>
 
 <p>Next we need to specific which address the accelerometer will use. Add the following 2 snippets to the setup function. The accelerometer datasheet indicates that the following can be set:</p>
 
@@ -212,8 +223,62 @@ Then a zero is transferred as many times as there are number of bytes that we wa
 
 <h3><a id="sdcard" class="anchor" href="#sdcard" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Connecting the SD Card Reader to log Data</h3>
 
+<p>As with the SPI library, we must import the SD card library at the top of the code:</p>
+
+<pre class="prettyprint linenums:18">
+#include &lt;SD.h&gt;
+</pre>
+
+<p>The SD card also has a Chip-Select pin, and must be connected to a separate pin on the Arduino, see the wiring diagram for more information</p>
+
+uint8_t CD = 8;  	 //Card detect pin for SD Card
+uint8_t SDCS = 10;	 // SD card Chip Select
+
+In setup, include the following line
+pinMode(AccelCD, INPUT);	//Accel. Chip Detect pin is an input to the Arduinouint8_t CS = 10;  //Chip Select pin for SD Card
+
+To save data to the SD card, the following must be declared:
+
+String dataString = "";		//string to hold text data to be written to SD card
+File dataFile;			//File on the SD card which will hold the data
+
+At the end of the SETUP function, add the following code. The SD card communicates using MODE0 protocol (different to that of the Accelerometer,
+and must therefore be set accordingly before the communication with the SD card is started:
+
+ SPI.setDataMode(SPI_MODE0); //Configure the SPI connection for the SD card
+  if(digitalRead(SDCD)) Serial.println("Card Inserted, Initializing SD card...");  //inform user of status
+
+The SD card is initialised in exactly the same way as both Serial and SPI:
+  SD.begin(CS);   //Start SD communication using CS pin
+  Serial.println("Card initialized.");
+
+After the code for printing the values to the serial monitor, add the following to save the values into a string capable of being saved to the SD card.
+
+dataString = "";
+  dataString += String(x);  //convert int to string and append to existing string
+  dataString += ", ";
+  dataString += String(y);  //convert int to string and append to existing string
+  dataString += ", ";
+  dataString += String(z);  //convert int to string and append to existing string
+
+Now that the string is prepared, we save it on the card:
+
+dataFile = SD.open("datalog.csv", FILE_WRITE);  //open file to write data to
+
+We then check if the file is actually open, and if it is we write the string to it and close the file.
+  if (dataFile) {                 //If data file is actually open...
+    dataFile.println(dataString); //save data
+    dataFile.close();             //close file
+  }
+
+We then add an else to the if to indicate to the user if the the file was not opened, again this is throught the Serial monitor.
+  else {
+    Serial.println("error opening datalog.csv");    // if the file isn't open, pop up an error
+  }
+
+
       <footer class="site-footer">
-        <span class="site-footer-owner">Content belongs to <a href="http://www2.warwick.ac.uk/">Warwick University</a> - <a href="http://www2.warwick.ac.uk/fac/sci/eng/">School of Engineering</a> and is maintained by <a href="https://github.com/Bucknalla">Alex Bucknall</a> and <a href="https://github.com/slinkyfish">Stephen Pithouse</a>.</span>
+        <!-- <span class="site-footer-owner">Content belongs to <a href="http://www2.warwick.ac.uk/">Warwick University</a> - <a href="http://www2.warwick.ac.uk/fac/sci/eng/">School of Engineering</a> and is maintained by <a href="https://github.com/Bucknalla">Alex Bucknall</a> and <a href="https://github.com/slinkyfish">Stephen Pithouse</a>.</span> -->
 
         <!--<span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>-->
       </footer>
