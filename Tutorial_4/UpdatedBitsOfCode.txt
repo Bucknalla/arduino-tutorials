@@ -1,0 +1,193 @@
+
+
+[I2C description here]
+
+https://learn.sparkfun.com/tutorials/i2c
+
+Arduino has an SPI library which handles lots of the low-level communications, making it easier for us to send data.
+
+SPI is typically faster than I2C, however it requires more pins, this is a compromise, however in this tutorial we use SPI as there are plenty of pins available.
+
+
+
+Firstly we import the SPI library and SD card library by placing the following lines at the start of the code:
+#include <SPI.h>  // SPI library to communicate with Acceleration Sensor
+#include <SD.h>
+
+This tells the compiler that it should look in the defined header files to locate functions used in the main code.
+
+
+
+We define the chip select pins (for communication) and Card detect pin (to notify of card insertion) below the #include statements:
+// pin definitions
+const uint8_t p_ACC_CS  = 8;  // accelerometer chip select
+const uint8_t p_SD_CD   = 9;  // SD card detect
+const uint8_t p_SD_CS   = 10; // SD card chip select
+
+
+The accelerometer can be configured by setting values in particular memory addresses. Furthermore the acceleration data that we are interested in is stored in other registers.
+These are defined next. (Note they are explained in the ADXL345 datasheet).
+#define POWER_CTL   0x2D // Power Control Register
+#define DATA_FORMAT 0x31
+#define DATAX0      0x32 // X-Axis Data 0
+#define DATAX1      0x33 // X-Axis Data 1
+#define DATAY0      0x34 // Y-Axis Data 0
+#define DATAY1      0x35 // Y-Axis Data 1
+#define DATAZ0      0x36 // Z-Axis Data 0
+#define DATAZ1      0x37 // Z-Axis Data 1
+
+We need to be able to send data to the computer so that we can see the values returned by the device, we do this by opening a Serial connection first (in the setup funciton):
+
+void setup() {
+  Serial.begin(9600); // start communications with computer
+
+The chip select pins that we defined previously need to be declared as outputs, whilst the Card Detect pin must be an input. The card detect pin is pulled LOW when a card is inserted, hence an internal pullup resistor is used to pull the pin HIGH when no card is inserted.
+  // setup IO pin directions
+  pinMode(p_SD_CS, OUTPUT);
+  pinMode(p_SD_CD, INPUT_PULLUP);
+  pinMode(p_ACC_CS, OUTPUT);  
+
+To begin with, the chip select pins are initialised by being pulled HIGH, this is required as part of the SPI protocol.
+  // initialse the chip select lines
+  digitalWrite(p_ACC_CS, HIGH);
+  digitalWrite(p_SD_CS, HIGH);
+
+Now that the pins are initialised, it is time to initiate an SPI communication instance:
+  // initiate an SPI communication instance.
+  SPI.begin(); 
+  
+Firstly we need to send data in the registers that we defined earlier, amongst other things, this determines the acceleration range over which the sensor operates.
+There are various versions of the SPI protocol, and the accelerometer uses MODE3 - This is outlined in the ADXL345 datasheet.
+// initialise the accelerometer
+  SPI.setDataMode(SPI_MODE3);       // Configure the SPI connection for the ADXL345.
+  writeRegister(DATA_FORMAT, 0x01); // Put the ADXL345 into +/- 4G range by writing the value 0x01 to the DATA_FORMAT register.
+  writeRegister(POWER_CTL, 0x08);   // Put the ADXL345 into Measurement Mode by writing 0x08 to the POWER_CTL register.
+  
+The card detect pin provideds us with the option to detect if an SD card is inserted, by use of the following line of code, we can wait until the card is inserted before starting the program, however, we could assume that the card is already inserted and ignore this step.
+//while (digitalRead(CD) == 0); //don't do anything until card is detected
+
+The SD card is then initialised and messages printed to the screen to inform the user of the status.
+  Serial.println("Card Inserted, Initializing SD card...");  //inform user of status
+  SD.begin(p_SD_CS);   //Start SD communication using CS pin
+  Serial.println("Card initialized.");
+
+The setup function is complete, this is finished with a curly brace:
+}
+
+We need to be able to write to the Accelerometer to tell it which data we would like to receive, this is a common occurance, hence we make a function specifically for writing to a register on the Accelerometer:
+The following function takes a register address and data value to be written to the specified register, and to send the data, the chip select line is pulled low, the address and register value are sent before the chip select line is pulled high again to signal the end of packet.
+
+/*************************************************************************
+//  This function will write a value to a register on the ADXL345.
+//
+//  Parameters:
+//    uint8_t registerAddress - The register to write a value to
+//    uint8_t value - The value to be written to the specified register.
+*************************************************************************/
+void writeRegister(uint8_t registerAddress, uint8_t data) {
+  // Set Chip Select pin low to signal the beginning of an SPI packet
+  digitalWrite(p_ACC_CS, LOW);
+
+  // Transfer the register address over SPI
+  SPI.transfer(registerAddress);
+
+  // Transfer the desired register value over SPI
+  SPI.transfer(data);
+
+  // Set the Chip Select pin high to signal the end of an SPI packet
+  digitalWrite(p_ACC_CS, HIGH);
+}
+
+As well as writing to the Accelerometer, we must also be able to read values from it, this is carried out in a similar manner to the write function.
+Some of the values that we would like to read are larger than 8bytes long, therefore the function alters the address value to indicate that the date to be read is stored across multiple bytes.
+The register values are read and the chip select line pulled high to end the SPI packet:
+
+/*************************************************************************
+//  This function will read a certain number of registers starting from
+//  a specified address and store their values in a buffer.
+//
+//  Parameters:
+//    uint8_t registerAddress - The register addresse to start the read sequence from.
+//    uint8_t numBytes - The number of registers that should be read.
+//    uint8_t * values - A pointer to a buffer where the results of the operation should be stored.
+*************************************************************************/
+void readRegister(uint8_t registerAddress, uint8_t numBytes, uint8_t * values) {
+  // Since we're performing a read operation, the most significant bit of the register address should be set
+  uint8_t address = registerAddress | 0x80;
+
+  // If we're doing a multi-byte read, bit 6 needs to be set as well
+  if (numBytes > 1) address |= 0x40;
+
+  //Set the Chip select pin low to start an SPI packet
+  digitalWrite(p_ACC_CS, LOW);
+
+  // Transfer the starting register address that needs to be read
+  SPI.transfer(address);
+
+  // Continue to read registers until we've read the number specified, storing the results to the input buffer
+  for (uint8_t i = 0; i < numBytes; i++) {
+    values[i] = SPI.transfer(0x00);
+  }
+  //Set the Chips Select pin high to end the SPI packet
+  digitalWrite(p_ACC_CS, HIGH);
+}
+
+Now that the Read and Write functions are complete, the final step is to create the 'loop' function to carry out the task of obtaining Accelerometer data and storing it on the SD card.
+
+To communicate with the accelerometer, we must again use MODE3:
+void loop() {
+  // switch to mode 3 to communicate with the accelerometer
+  SPI.setDataMode(SPI_MODE3);
+  
+The x, y, and z data is stored over 6 bytes starting at address: 'DATAX0'. (hence 2 bytes per value). These must be read and stored into a buffer:
+  // Reading 6 bytes of data starting at register DATAX0 will retrieve the x, y and z acceleration
+  // values from the ADXL345. The results of the read operation will get stored to the values[] buffer.
+  uint8_t values[10]; // This buffer will hold values read from the ADXL345 registers.
+  readRegister(DATAX0, 6, values);
+
+The 2 (8-bit) bytes (for each axis value) must be combined to form a 10 bit value, this is carried out by a process called bit shifting (<< operator)
+
+  // The ADXL345 gives 10-bit acceleration values, but they are stored as bytes (8-bits).
+  // To get the full value, two bytes must be combined for each axis.
+  int16_t x, y, z;   // These variables will be used to hold the x, y and z axis accelerometer values.
+  x = ((int16_t)values[1] << 8) | (int16_t)values[0];   // The X value is stored in values[0] and values[1]
+  y = ((int16_t)values[3] << 8) | (int16_t)values[2];   // The Y value is stored in values[2] and values[3]
+  z = ((int16_t)values[5] << 8) | (int16_t)values[4];   // The Z value is stored in values[4] and values[5]
+  
+For our convenience, we print the obtained values to the terminal, so that we can check the program so far.
+ //Print the results to the terminal.
+  Serial.print(x, DEC);
+  Serial.print(',');
+  Serial.print(y, DEC);
+  Serial.print(',');
+  Serial.println(z, DEC);
+
+This is a convenient point to end the loop function, by adding a curly brace'}' and uploading the program to the Arduino to check that the output is as expected.
+
+
+Once the output is varified, you may continue to add to the loop function to store the data onto an SD card.
+The arduino requires the data to be written to the card in 'string' form as opposed to integers, therefore a string is created with the obtained values:
+  String dataString = "";
+  dataString += String(x);  //convert int to string and append to existing string
+  dataString += ", ";
+  dataString += String(y);  //convert int to string and append to existing string
+  dataString += ", ";
+  dataString += String(z);  //convert int to string and append to existing string
+  
+Whereas the Accelerometer uses the MODE3 protocol, the SD card uses the MODE0 protocol, hence this must be changed before we can save to the card:
+// switch to mode 0 to communicate with the SD
+  SPI.setDataMode(SPI_MODE0);
+
+Finally, to save the data to the SD card, a file is created and the string written to the file. This is then closed before printing the data to the terminal to allow us to check the data.
+  
+  File dataFile = SD.open("datalog.csv", FILE_WRITE);  //open file to write data to
+  if (dataFile) {                 //If data file is actually open...
+    dataFile.println(dataString); //save data
+    dataFile.close();             //close file
+    Serial.println(dataString);     // print to the serial port too:
+  }
+  else {
+    Serial.println("error opening datalog.csv");    // if the file isn't open, pop up an error
+  }
+
+A 'csv' file is a format which can be interpreted by programs such as Microsoft Excel, using commas to indicate a new column, such a format is useful, as the data is allocated to individual cells which can be plotted on a graph for us to visually interpret.
